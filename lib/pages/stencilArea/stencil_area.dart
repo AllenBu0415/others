@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:others/modules/CalculationData.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:others/modules/calculation_data.dart';
 
 class StencilAreaPage extends StatefulWidget {
   const StencilAreaPage({super.key});
@@ -18,60 +19,39 @@ class _StencilAreaPageState extends State<StencilAreaPage> {
   final areaWidthController = TextEditingController();
   final areaHeightController = TextEditingController();
 
-  void _showSimpleDialog(BuildContext context) {
-    CalculationData calculationDataObj =   CalculationData(
+  void _handleResult(){
+    CalculationData calculationDataObj =  CalculationData(
         stencilWidth: double.parse(stencilWidthController.text),
         stencilHeight: double.parse(stencilHeightController.text),
         areaWidth: double.parse(areaWidthController.text),
         areaHeight: double.parse(areaHeightController.text)
     );
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return SimpleDialog(
-          title: const Text('计算模式'),
-          children: <Widget>[
-            SimpleDialogOption(
-              child: const Text('横式放置'),
-              onPressed: () {
-                calculationDataObj.isRevolve = false;
-
-                Navigator.pushReplacementNamed(
-                    context,
-                    "/StencilAreaResultPage",
-                    arguments: calculationDataObj
-                );
-              },
-            ),
-            SimpleDialogOption(
-              child: const Text('竖式放置'),
-              onPressed: () {
-                calculationDataObj.isRevolve = true;
-
-                Navigator.pushReplacementNamed(
-                    context,
-                    "/StencilAreaResultPage",
-                    arguments: calculationDataObj
-                );
-              },
-            ),
-          ],
-        );
-      },
-    );
+    if(calculationDataObj.areaWidth >= calculationDataObj.stencilWidth && calculationDataObj.areaHeight >= calculationDataObj.stencilHeight && calculationDataObj.stencilWidth>0 && calculationDataObj.stencilHeight>0){
+      Navigator.pushNamed(
+          context,
+          "/StencilAreaResultPage",
+          arguments: calculationDataObj
+      );
+    }else{
+      Fluttertoast.showToast(
+          msg: "铺设面积小于所用模版面积，请自由裁剪！",
+          gravity: ToastGravity.CENTER,
+          backgroundColor: Colors.white,
+          textColor: Colors.black
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    stencilWidthController.value = const TextEditingValue(text: '10');
-    stencilHeightController.value = const TextEditingValue(text: '4');
-    areaWidthController.value = const TextEditingValue(text: '124');
-    areaHeightController.value = const TextEditingValue(text: '62');
+    stencilWidthController.value = const TextEditingValue(text: '40');
+    stencilHeightController.value = const TextEditingValue(text: '15');
+    areaWidthController.value = const TextEditingValue(text: '90');
+    areaHeightController.value = const TextEditingValue(text: '60');
 
     return Scaffold(
         appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.primary,
           title: Text(
             widget.title,
             style: const TextStyle(fontWeight: FontWeight.bold),
@@ -186,19 +166,22 @@ class _StencilAreaPageState extends State<StencilAreaPage> {
                     ),
                     const Spacer(),
                     SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ButtonStyle(
-                          backgroundColor:WidgetStateProperty.all(Theme.of(context).colorScheme.primary),
-                        ),
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            _showSimpleDialog(context);
-                          }
-                        },
-                        child: const Text('开始计算', style: TextStyle(color: Colors.white)),
-                      ),
-                    )
+                        width: double.infinity,
+                        child: Padding(
+                          padding:const EdgeInsets.only(bottom: 24.0),
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor:WidgetStateProperty.all(Theme.of(context).colorScheme.primary),
+                            ),
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                _handleResult();
+                              }
+                            },
+                            child: const Text('开始计算', style: TextStyle(color: Colors.white)),
+                          ),
+                        )
+                    ),
                   ],
                 )
             )
